@@ -1,7 +1,8 @@
+import OTPInput from "@/components/OTPInput";
 import { useAuth, useSignUp } from "@clerk/expo";
 import { Link, useRouter } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -11,57 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-const OTP_LENGTH = 6;
-
-function OTPInput({
-  code,
-  setCode,
-}: {
-  code: string;
-  setCode: (value: string) => void;
-}) {
-  const inputs = useRef<(TextInput | null)[]>([]);
-
-  const handleChange = (value: string, index: number) => {
-    const digit = value.replace(/[^0-9]/g, "");
-
-    if (!digit) {
-      const newCode = code.split("");
-      newCode[index] = "";
-      setCode(newCode.join(""));
-      return;
-    }
-
-    const newCode = code.split("");
-    newCode[index] = digit[digit.length - 1];
-
-    setCode(newCode.join(""));
-
-    if (index < OTP_LENGTH - 1) {
-      inputs.current[index + 1]?.focus();
-    }
-  };
-
-  return (
-    <View className="flex-row justify-between gap-2 mb-4">
-      {Array.from({ length: OTP_LENGTH }).map((_, index) => (
-        <TextInput
-          key={index}
-          ref={(ref) => {
-            inputs.current[index] = ref;
-          }}
-          className="flex-1 h-14 border border-gray-300 rounded-xl text-center text-xl font-bold"
-          value={code[index] || ""}
-          onChangeText={(value) => handleChange(value, index)}
-          keyboardType="number-pad"
-          maxLength={1}
-          selectTextOnFocus
-        />
-      ))}
-    </View>
-  );
-}
 
 export default function SignUp() {
   const { signUp, errors, fetchStatus } = useSignUp();
@@ -248,38 +198,10 @@ export default function SignUp() {
             />
 
             <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
+              onPress={() => setShowPassword((prev) => !prev)}
               className="absolute right-0 top-0 bottom-0 w-12 items-center justify-center"
               activeOpacity={0.7}
             >
-              {" "}
-              <View className="relative w-full mb-4">
-                <TextInput
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-12"
-                  placeholder="Password"
-                  placeholderTextColor="#9CA3AF"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                />
-
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-0 bottom-0 justify-center items-center"
-                >
-                  {showPassword ? (
-                    <EyeOff size={20} color="#9CA3AF" />
-                  ) : (
-                    <Eye size={20} color="#9CA3AF" />
-                  )}
-                </TouchableOpacity>
-
-                {errors.fields?.password && (
-                  <Text className="text-red-500 mb-2 ml-1">
-                    {errors.fields.password.message}
-                  </Text>
-                )}
-              </View>
               {showPassword ? (
                 <EyeOff size={20} color="#9CA3AF" />
               ) : (
