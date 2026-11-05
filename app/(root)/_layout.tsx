@@ -5,7 +5,7 @@ import { useUserSync } from "../../hooks/useUserSync";
 export default function AuthRoutesLayout() {
   const { isSignedIn, isLoaded } = useAuth();
 
-  //   sync Clerk user -> Supabase (we'll build this later)
+  //   sync Clerk user -> Supabase
   useUserSync();
 
   if (!isLoaded) return null;
