@@ -14,6 +14,7 @@ export function useSignUpFlow() {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const isLoading = fetchStatus === "fetching";
   const isDone = signUp.status === "complete" || !!isSignedIn;
@@ -56,9 +57,11 @@ export function useSignUpFlow() {
       return;
     }
 
+    setIsVerifying(true);
     const { error } = await signUp.verifications.verifyEmailCode({ code });
 
     if (error) {
+      setIsVerifying(false);
       setFormError(error.message);
       return;
     }
@@ -66,9 +69,13 @@ export function useSignUpFlow() {
     if (signUp.status === "complete") {
       // No manual navigation: once the session is active, `isSignedIn` flips
       // and the route guard in app/_layout.tsx moves the user into the app.
+      // `isVerifying` stays true on purpose so the progress screen keeps
+      // showing until then.
       await signUp.finalize({
         navigate: () => {},
       });
+    } else {
+      setIsVerifying(false);
     }
   };
 
@@ -94,6 +101,7 @@ export function useSignUpFlow() {
     errors,
     isLoading,
     isDone,
+    isVerifying,
     step,
     verifyingEmail,
     // actions
