@@ -1,8 +1,10 @@
 import EmptyState from "@/components/home/EmptyState";
+import FeaturedSection from "@/components/home/FeaturedSection";
 import HomeHeader from "@/components/home/HomeHeader";
 import HomeSearchBar from "@/components/home/HomeSearchBar";
 import PropertyCard from "@/components/home/PropertyCard";
 import SectionHeader from "@/components/home/SectionHeader";
+
 import { useProperties } from "@/hooks/useProperties";
 import { Property } from "@/types";
 import { useUser } from "@clerk/expo";
@@ -14,7 +16,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function HomeScreen() {
   const { user } = useUser();
   const router = useRouter();
-  const { recommended, loading, refreshing, refresh } = useProperties();
+  const { recommended, featured, loading, refreshing, refresh } =
+    useProperties();
 
   const goToSearch = useCallback(
     () => router.push("/(root)/(tabs)/search"),
@@ -47,6 +50,7 @@ export default function HomeScreen() {
             <HomeSearchBar onPress={goToSearch} />
 
             {/* Featured properties */}
+            <FeaturedSection properties={featured} onSeeAll={goToSearch} />
 
             {/* Recommended properties */}
             <SectionHeader
