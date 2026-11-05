@@ -1,5 +1,4 @@
 import { useAuth, useSignIn } from "@clerk/expo";
-import { useRouter } from "expo-router";
 import { useState } from "react";
 
 export type SecondFactorStrategy = "phone_code" | "totp" | "backup_code";
@@ -9,7 +8,6 @@ export type SignInFlow = ReturnType<typeof useSignInFlow>;
 export function useSignInFlow() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const { isSignedIn } = useAuth();
-  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,15 +46,13 @@ export function useSignInFlow() {
   const finalizeSignIn = async () => {
     if (signIn.status !== "complete") return;
 
+    // No manual navigation: once the session is active, `isSignedIn` flips
+    // and the route guard in app/_layout.tsx moves the user into the app.
     await signIn.finalize({
-      navigate: ({ session, decorateUrl }) => {
+      navigate: ({ session }) => {
         if (session?.currentTask) {
           console.log(session.currentTask);
-          return;
         }
-
-        const url = decorateUrl("/");
-        router.replace(url as any);
       },
     });
   };

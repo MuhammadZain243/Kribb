@@ -1,5 +1,4 @@
 import { useAuth, useSignUp } from "@clerk/expo";
-import { useRouter } from "expo-router";
 import { useState } from "react";
 
 export type SignUpStep = "form" | "verify_email";
@@ -8,7 +7,6 @@ export type SignUpFlow = ReturnType<typeof useSignUpFlow>;
 export function useSignUpFlow() {
   const { signUp, errors, fetchStatus } = useSignUp();
   const { isSignedIn } = useAuth();
-  const router = useRouter();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -66,11 +64,10 @@ export function useSignUpFlow() {
     }
 
     if (signUp.status === "complete") {
+      // No manual navigation: once the session is active, `isSignedIn` flips
+      // and the route guard in app/_layout.tsx moves the user into the app.
       await signUp.finalize({
-        navigate: ({ decorateUrl }) => {
-          const url = decorateUrl("/");
-          router.replace(url as any);
-        },
+        navigate: () => {},
       });
     }
   };
