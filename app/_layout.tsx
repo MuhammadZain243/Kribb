@@ -1,35 +1,41 @@
+import AnimatedSplash from "@/components/AnimatedSplash";
 import { env } from "@/lib/env";
 import { ClerkProvider, useAuth } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { SplashScreen, Stack } from "expo-router";
-import { useEffect } from "react";
+import { useCallback, useState } from "react";
+import { View } from "react-native";
 import "../global.css";
 
-// Keep the splash screen visible until Clerk has loaded the session.
+// Keep the native splash up until <AnimatedSplash /> has drawn its first frame.
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
   const { isSignedIn, isLoaded } = useAuth();
+  const [splashDone, setSplashDone] = useState(false);
+  const handleSplashFinish = useCallback(() => setSplashDone(true), []);
 
-  useEffect(() => {
-    if (isLoaded) SplashScreen.hideAsync();
-  }, [isLoaded]);
-
-  if (!isLoaded) return null;
-
-  // Route guards: signed-in users can only reach (root),
-  // signed-out users can only reach (auth). Redirects happen automatically
-  // whenever the auth state changes.
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!isSignedIn}>
-        <Stack.Screen name="(root)" />
-      </Stack.Protected>
+    <View style={{ flex: 1 }}>
+      {/* Route guards: signed-in users can only reach (root), signed-out users
+          can only reach (auth). Mounted once Clerk has loaded, and revealed
+          when the splash fades out. */}
+      {isLoaded && (
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Protected guard={!!isSignedIn}>
+            <Stack.Screen name="(root)" />
+          </Stack.Protected>
 
-      <Stack.Protected guard={!isSignedIn}>
-        <Stack.Screen name="(auth)" />
-      </Stack.Protected>
-    </Stack>
+          <Stack.Protected guard={!isSignedIn}>
+            <Stack.Screen name="(auth)" />
+          </Stack.Protected>
+        </Stack>
+      )}
+
+      {!splashDone && (
+        <AnimatedSplash ready={isLoaded} onFinish={handleSplashFinish} />
+      )}
+    </View>
   );
 }
 
