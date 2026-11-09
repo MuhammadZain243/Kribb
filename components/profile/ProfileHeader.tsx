@@ -1,4 +1,5 @@
-import { ShieldCheck } from "lucide-react-native";
+import { primaryShadow } from "@/components/home/shadows";
+import { Calendar, ShieldCheck, User } from "lucide-react-native";
 import React from "react";
 import { Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -9,6 +10,7 @@ type Props = {
   name: string;
   email?: string;
   isAdmin?: boolean;
+  memberSince?: string;
   uploading?: boolean;
   onChangePhoto: () => void;
 };
@@ -18,38 +20,65 @@ export default function ProfileHeader({
   name,
   email,
   isAdmin,
+  memberSince,
   uploading,
   onChangePhoto,
 }: Props) {
+  const RoleIcon = isAdmin ? ShieldCheck : User;
+
   return (
     <Animated.View
       entering={FadeInDown.duration(500).springify().damping(16)}
-      className="items-center px-6 pt-6"
+      className="mx-5 mt-4 bg-blue-600 overflow-hidden items-center px-6 pt-8 pb-6"
+      style={[{ borderRadius: 32 }, primaryShadow]}
     >
+      {/* decorative circles */}
+      <View
+        pointerEvents="none"
+        className="absolute -top-16 -right-12 w-48 h-48 rounded-full bg-white/10"
+      />
+      <View
+        pointerEvents="none"
+        className="absolute -bottom-20 -left-10 w-44 h-44 rounded-full bg-white/10"
+      />
+
       <ProfileAvatar
+        ring
         imageUrl={imageUrl}
         loading={uploading}
         onPress={onChangePhoto}
       />
 
-      <Text className="text-gray-900 text-2xl font-bold mt-4" numberOfLines={1}>
+      <Text
+        className="text-white text-2xl font-bold mt-4 text-center"
+        numberOfLines={1}
+      >
         {name}
       </Text>
 
       {email ? (
-        <Text className="text-gray-500 text-base mt-1" numberOfLines={1}>
+        <Text className="text-white/80 text-base mt-1" numberOfLines={1}>
           {email}
         </Text>
       ) : null}
 
-      {isAdmin ? (
-        <View className="flex-row items-center bg-blue-50 px-3 py-1.5 rounded-full mt-3">
-          <ShieldCheck size={14} color="#2563EB" />
-          <Text className="text-blue-700 text-xs font-semibold ml-1.5">
-            Admin
+      <View className="flex-row flex-wrap justify-center gap-2 mt-4">
+        <View className="flex-row items-center bg-white/20 px-3 py-1.5 rounded-full">
+          <RoleIcon size={14} color="#FFFFFF" />
+          <Text className="text-white text-xs font-semibold ml-1.5">
+            {isAdmin ? "Admin" : "Member"}
           </Text>
         </View>
-      ) : null}
+
+        {memberSince ? (
+          <View className="flex-row items-center bg-white/20 px-3 py-1.5 rounded-full">
+            <Calendar size={14} color="#FFFFFF" />
+            <Text className="text-white text-xs font-semibold ml-1.5">
+              Since {memberSince}
+            </Text>
+          </View>
+        ) : null}
+      </View>
     </Animated.View>
   );
 }
