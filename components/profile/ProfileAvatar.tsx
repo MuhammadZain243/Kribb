@@ -12,6 +12,8 @@ type Props = {
   imageUrl?: string;
   size?: number;
   loading?: boolean;
+  /** Adds a white ring, for use on coloured backgrounds. */
+  ring?: boolean;
   /** When provided, shows the camera badge and makes the avatar tappable. */
   onPress?: () => void;
 };
@@ -20,6 +22,7 @@ export default function ProfileAvatar({
   imageUrl,
   size = 112,
   loading = false,
+  ring = false,
   onPress,
 }: Props) {
   const radius = size / 2;
@@ -35,7 +38,13 @@ export default function ProfileAvatar({
       <Image
         source={{ uri: imageUrl }}
         className="bg-gray-200"
-        style={{ width: size, height: size, borderRadius: radius }}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: radius,
+          borderWidth: ring ? 4 : 0,
+          borderColor: "#FFFFFF",
+        }}
       />
 
       {loading && (

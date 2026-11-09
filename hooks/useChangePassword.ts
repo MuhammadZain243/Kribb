@@ -60,6 +60,12 @@ export function useChangePassword() {
     }
   };
 
+  const canSubmit =
+    currentPassword.length > 0 &&
+    newPassword.length > 0 &&
+    confirmPassword.length > 0 &&
+    !saving;
+
   return {
     currentPassword,
     setCurrentPassword,
@@ -72,6 +78,7 @@ export function useChangePassword() {
     fieldErrors,
     formError,
     saving,
+    canSubmit,
     submit,
     /** Accounts created with a social login have no password to change. */
     passwordEnabled: user?.passwordEnabled ?? true,
