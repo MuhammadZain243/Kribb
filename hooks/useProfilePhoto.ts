@@ -5,10 +5,16 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { useSyncProfile } from "./useSyncProfile";
 
+export type ProfilePhoto = ReturnType<typeof useProfilePhoto>;
+
+/** Waits for the bottom sheet to finish closing before opening the picker. */
+const SHEET_CLOSE_DELAY_MS = 350;
+
 export function useProfilePhoto() {
   const { user } = useUser();
   const syncProfile = useSyncProfile();
   const [uploading, setUploading] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const run = async (task: () => Promise<void>) => {
     setUploading(true);
@@ -57,22 +63,23 @@ export function useProfilePhoto() {
     });
   };
 
-  /** Shows "Choose from library / Remove photo / Cancel". */
-  const openMenu = () => {
-    Alert.alert("Profile photo", undefined, [
-      { text: "Choose from library", onPress: pickFromLibrary },
-      ...(user?.hasImage
-        ? [
-            {
-              text: "Remove photo",
-              style: "destructive" as const,
-              onPress: removePhoto,
-            },
-          ]
-        : []),
-      { text: "Cancel", style: "cancel" as const },
-    ]);
+  const choosePhoto = () => {
+    setMenuVisible(false);
+    setTimeout(pickFromLibrary, SHEET_CLOSE_DELAY_MS);
   };
 
-  return { openMenu, uploading };
+  const deletePhoto = () => {
+    setMenuVisible(false);
+    setTimeout(removePhoto, SHEET_CLOSE_DELAY_MS);
+  };
+
+  return {
+    uploading,
+    menuVisible,
+    canRemove: !!user?.hasImage,
+    openMenu: () => setMenuVisible(true),
+    closeMenu: () => setMenuVisible(false),
+    choosePhoto,
+    deletePhoto,
+  };
 }

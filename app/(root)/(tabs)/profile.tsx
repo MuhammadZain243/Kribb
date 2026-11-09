@@ -1,13 +1,14 @@
-import { softShadow } from "@/components/home/shadows";
 import MenuRow from "@/components/profile/MenuRow";
+import PhotoActionSheet from "@/components/profile/PhotoActionSheet";
 import ProfileHeader from "@/components/profile/ProfileHeader";
+import SettingsSection from "@/components/profile/SettingsSection";
 import { useProfilePhoto } from "@/hooks/useProfilePhoto";
 import { useUserStore } from "@/store/userStore";
 import { useClerk, useUser } from "@clerk/expo";
 import { useRouter } from "expo-router";
-import { Calendar, Lock, LogOut, User } from "lucide-react-native";
+import { Lock, LogOut, User } from "lucide-react-native";
 import React from "react";
-import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
@@ -15,13 +16,13 @@ export default function ProfileScreen() {
   const { signOut } = useClerk();
   const router = useRouter();
   const isAdmin = useUserStore((state) => state.isAdmin);
-  const { openMenu, uploading } = useProfilePhoto();
+  const photo = useProfilePhoto();
 
   const name =
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "Your name";
 
   const memberSince = user?.createdAt?.toLocaleDateString(undefined, {
-    month: "long",
+    month: "short",
     year: "numeric",
   });
 
@@ -46,9 +47,9 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView edges={["top"]} className="flex-1 bg-gray-50">
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 110 }}
+        contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
       >
         <View className="px-6 pt-4">
@@ -60,57 +61,40 @@ export default function ProfileScreen() {
           name={name}
           email={user?.primaryEmailAddress?.emailAddress}
           isAdmin={isAdmin}
-          uploading={uploading}
-          onChangePhoto={openMenu}
+          memberSince={memberSince}
+          uploading={photo.uploading}
+          onChangePhoto={photo.openMenu}
         />
 
-        {/* Account */}
-        <View className="px-6 mt-8">
-          <Text className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3 ml-1">
-            Account
-          </Text>
+        <SettingsSection title="Account" delay={120}>
+          <MenuRow
+            icon={User}
+            label="Edit profile"
+            description="Update your name and photo"
+            onPress={() => router.push("/edit-profile")}
+          />
+          <MenuRow
+            icon={Lock}
+            tone="violet"
+            label="Change password"
+            description="Keep your account secure"
+            onPress={() => router.push("/change-password")}
+          />
+        </SettingsSection>
 
-          <View
-            className="bg-white rounded-3xl overflow-hidden"
-            style={softShadow}
-          >
-            <MenuRow
-              icon={User}
-              label="Edit profile"
-              description="Update your name and photo"
-              onPress={() => router.push("/edit-profile")}
-            />
-            <View className="h-px bg-gray-100 ml-16" />
-            <MenuRow
-              icon={Lock}
-              label="Change password"
-              description="Keep your account secure"
-              onPress={() => router.push("/change-password")}
-            />
-          </View>
-
-          {memberSince ? (
-            <View className="flex-row items-center mt-4 ml-1">
-              <Calendar size={14} color="#9CA3AF" />
-              <Text className="text-gray-400 text-sm ml-2">
-                Member since {memberSince}
-              </Text>
-            </View>
-          ) : null}
-        </View>
-
-        {/* Logout */}
-        <View className="px-6 mt-8">
-          <TouchableOpacity
+        <SettingsSection title="Session" delay={220}>
+          <MenuRow
+            icon={LogOut}
+            destructive
+            label="Log out"
+            description="Sign out of this device"
+            showChevron={false}
             onPress={confirmLogout}
-            activeOpacity={0.8}
-            className="flex-row items-center justify-center gap-3 bg-red-50 border border-red-200 rounded-2xl py-4"
-          >
-            <LogOut size={20} color="#DC2626" />
-            <Text className="text-red-600 font-semibold text-base">Logout</Text>
-          </TouchableOpacity>
-        </View>
+          />
+        </SettingsSection>
       </ScrollView>
+
+      <PhotoActionSheet photo={photo} />
     </SafeAreaView>
   );
 }

@@ -5,13 +5,14 @@ import { Pressable, Text, View } from "react-native";
 
 type Props = {
   title: string;
+  subtitle?: string;
 };
 
-export default function ScreenHeader({ title }: Props) {
+export default function ScreenHeader({ title, subtitle }: Props) {
   const router = useRouter();
 
   return (
-    <View className="flex-row items-center px-5 pt-3 pb-2">
+    <View className="flex-row items-center px-5 pt-3 pb-3">
       <Pressable
         onPress={() => router.back()}
         hitSlop={8}
@@ -29,7 +30,16 @@ export default function ScreenHeader({ title }: Props) {
         <ChevronLeft size={22} color="#111827" />
       </Pressable>
 
-      <Text className="text-gray-900 text-xl font-bold ml-4">{title}</Text>
+      <View className="ml-4 flex-1">
+        <Text className="text-gray-900 text-xl font-bold" numberOfLines={1}>
+          {title}
+        </Text>
+        {subtitle ? (
+          <Text className="text-gray-500 text-sm" numberOfLines={1}>
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
     </View>
   );
 }
